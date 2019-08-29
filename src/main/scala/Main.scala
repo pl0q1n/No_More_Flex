@@ -15,12 +15,16 @@ object Main extends App {
     Ok(Message("World"))
   }
 
+  def helloWoldInt: Endpoint[IO, String] = get("hello" :: path[Int]) { i: Int =>
+    Ok("Ints are cool: " + i.toString())
+  }
   def processPost: Endpoint[IO, Message] = post("value") {
     Ok(Message("post Value"))
   }
 
   def service: Service[Request, Response] = Bootstrap
     .serve[Application.Json](helloWorld)
+    .serve[Text.Plain](helloWoldInt)
     .serve[Application.Json](processPost)
     .toService
 
