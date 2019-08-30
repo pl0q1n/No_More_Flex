@@ -2,6 +2,8 @@ val finchVersion = "0.26.0"
 val circeVersion = "0.10.1"
 val scalatestVersion = "3.0.5"
 
+cancelable in Global := true
+
 lazy val root = (project in file("."))
   .settings(
     organization := "com.example",

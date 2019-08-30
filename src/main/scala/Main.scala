@@ -1,31 +1,48 @@
+import scala.collection.mutable.Map
 import cats.effect.IO
 import com.twitter.finagle.{Http, Service}
 import com.twitter.finagle.http.{Request, Response}
-import com.twitter.util.Await
+import com.twitter.util.{Await, Try}
 import io.finch._
 import io.finch.catsEffect._
 import io.finch.circe._
 import io.circe.generic.auto._
 
+import scala.collection.mutable
+
+object Category extends Enumeration {
+  type Category = Value
+
+  val Unknown: Value = Value("unknown")
+  val Grocery: Value = Value("grocery")
+}
+
+case class Transaction(sender: String,
+                       receiver: String,
+                       value: Int,
+                       time: String,
+                       category: Option[String])
+
 object Main extends App {
+  var db: mutable.Map[Int, Transaction] = mutable.Map.empty
 
-  case class Message(hello: String)
+  case class Status(status: Boolean)
 
-  def helloWorld: Endpoint[IO, Message] = get("hello") {
-    Ok(Message("World"))
+  case class AddTransaction(sender: String,
+                            receiver: String,
+                            value: Int,
+                            time: String,
+                            category: Option[String]) {
+    def toTransaction: Transaction = Transaction(sender, receiver, value, time, category)
   }
 
-  def helloWoldInt: Endpoint[IO, String] = get("hello" :: path[Int]) { i: Int =>
-    Ok("Ints are cool: " + i.toString())
-  }
-  def processPost: Endpoint[IO, Message] = post("value") {
-    Ok(Message("post Value"))
+  def addTransaction: Endpoint[IO, Status] = post("add" :: jsonBody[AddTransaction]) { request: AddTransaction =>
+    db.put(0, request.toTransaction)
+    Ok(Status(true))
   }
 
   def service: Service[Request, Response] = Bootstrap
-    .serve[Application.Json](helloWorld)
-    .serve[Text.Plain](helloWoldInt)
-    .serve[Application.Json](processPost)
+    .serve[Application.Json](addTransaction)
     .toService
 
   Await.ready(Http.server.serve(":8081", service))

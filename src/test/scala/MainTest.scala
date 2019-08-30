@@ -1,12 +1,27 @@
+import Main.AddTransaction
+import com.twitter.io.Buf
 import org.scalatest.FunSuite
 import io.finch._
-import com.twitter.io.Buf
 
 class MainTest extends FunSuite {
   test("Smoke post test") {
-    val inp = Input.post("/value").withBody[Application.Json](Buf.Utf8("""{"name":"foo","age":42}"""))
-    val actual_msg = Main.processPost(inp).awaitOutputUnsafe().map(_.value)
-    val expected_msg = Some(Main.Message("post Value"))
-    assert(actual_msg == expected_msg)
+    Main.db = collection.mutable.Map.empty // DelayedInit semantics can be surprising (C)
+    val initialSize = Main.db.size
+    val transaction = Buf.Utf8(
+      """
+      {
+        "sender": "foo",
+        "receiver": "bar",
+        "value": 42,
+        "time": "now"
+      }
+      """
+    )
+
+    val request = Input.post("/add")
+      .withBody[Application.Json](transaction)
+    val response = Main.addTransaction(request).awaitOutputUnsafe()
+    assert(response.map(_.value).contains(Main.Status(true)))
+    assert(Main.db.size == initialSize + 1)
   }
 }
