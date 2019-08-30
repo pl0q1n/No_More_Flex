@@ -1,4 +1,5 @@
-import scala.collection.mutable.Map
+import scala.collection.mutable
+import scala.collection.immutable
 import cats.effect.IO
 import com.twitter.finagle.{Http, Service}
 import com.twitter.finagle.http.{Request, Response}
@@ -7,8 +8,6 @@ import io.finch._
 import io.finch.catsEffect._
 import io.finch.circe._
 import io.circe.generic.auto._
-
-import scala.collection.mutable
 
 object Category extends Enumeration {
   type Category = Value
@@ -24,7 +23,8 @@ case class Transaction(sender: String,
                        category: Option[String])
 
 object Main extends App {
-  var db: mutable.Map[Int, Transaction] = mutable.Map.empty
+  val debugState: mutable.Map[Int, List[Transaction]] = mutable.Map(0 -> List(Transaction("a", "b", 42, "now", None)))
+  var db: mutable.Map[Int, List[Transaction]] = mutable.Map.empty
 
   case class Status(status: Boolean)
 
@@ -36,13 +36,21 @@ object Main extends App {
     def toTransaction: Transaction = Transaction(sender, receiver, value, time, category)
   }
 
+  // HTTP POST /add
   def addTransaction: Endpoint[IO, Status] = post("add" :: jsonBody[AddTransaction]) { request: AddTransaction =>
-    db.put(0, request.toTransaction)
+    val transactions = request.toTransaction :: db.getOrElse(0, List.empty)
+    db.put(0, transactions)
     Ok(Status(true))
+  }
+
+  // HTTP GET /transactions
+  def getTransactions: Endpoint[IO, immutable.Map[Int, List[Transaction]]] = get("transactions") {
+    Ok(db.toMap)
   }
 
   def service: Service[Request, Response] = Bootstrap
     .serve[Application.Json](addTransaction)
+    .serve[Application.Json](getTransactions)
     .toService
 
   Await.ready(Http.server.serve(":8081", service))
