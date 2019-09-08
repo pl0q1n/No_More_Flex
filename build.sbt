@@ -14,6 +14,8 @@ lazy val root = (project in file("."))
       "com.github.finagle" %% "finchx-core"  % finchVersion,
       "com.github.finagle" %% "finchx-circe"  % finchVersion,
       "io.circe" %% "circe-generic" % circeVersion,
-      "org.scalatest"      %% "scalatest"    % scalatestVersion % "test"
+      "org.scalatest"      %% "scalatest"    % scalatestVersion % "test",
+      "com.typesafe.slick" %% "slick" % "3.3.2",
+      "org.postgresql" % "postgresql" % "9.3-1100-jdbc41"
     )
   )
