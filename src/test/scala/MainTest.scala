@@ -13,7 +13,7 @@ class MainTest extends FunSuite {
         "sender": "foo",
         "receiver": "bar",
         "value": 42,
-        "time": "now"
+        "time": 1559481217
       }
       """
     )
