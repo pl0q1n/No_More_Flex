@@ -8,6 +8,12 @@ import io.finch._
 import io.finch.catsEffect._
 import io.finch.circe._
 import io.circe.generic.auto._
+import slick.backend.DatabasePublisher
+import slick.driver.H2Driver.api._
+//import slick.jdbc.PostgresProfile.api._
+//import slick.jdbc.PostgresProfile
+//import slick.driver.PostgresProfile.api._
+
 
 object Category extends Enumeration {
   type Category = Value
@@ -25,6 +31,7 @@ case class Transaction(sender: String,
 object Main extends App {
   val debugState: mutable.Map[Int, List[Transaction]] = mutable.Map(0 -> List(Transaction("a", "b", 42, "now", None)))
   var db: mutable.Map[Int, List[Transaction]] = mutable.Map.empty
+  val db_real = Database.forConfig("nmf_postgres")
 
   case class Status(status: Boolean)
 
@@ -52,6 +59,8 @@ object Main extends App {
     .serve[Application.Json](addTransaction)
     .serve[Application.Json](getTransactions)
     .toService
+
+  //val db_real: PostgresProfile.backend.Database = Database.forConfig("nmf_postgres")
 
   Await.ready(Http.server.serve(":8081", service))
 }
