@@ -22,45 +22,49 @@ object Category extends Enumeration {
   val Grocery: Value = Value("grocery")
 }
 
-case class Transaction(sender: String,
-                       receiver: String,
-                       value: Int,
-                       time: String,
-                       category: Option[String])
+
+case class Status(status: Boolean)
+
+case class AddTransaction(sender: String,
+                            receiver: String,
+                            value: Int,
+                            time: String,
+                            category: Option[String]) {
+  def toTransaction: Transaction = Transaction(sender, receiver, value, time, category)
+}
+
+
+def service: Service[Request, Response] = Bootstrap
+  .serve[Application.Json](addTransaction)
+  .serve[Application.Json](getTransactions)
+  .toService
+
 
 object Main extends App {
   val debugState: mutable.Map[Int, List[Transaction]] = mutable.Map(0 -> List(Transaction("a", "b", 42, "now", None)))
   var db: mutable.Map[Int, List[Transaction]] = mutable.Map.empty
   val db_real = Database.forConfig("nmf_postgres")
+  try {
+    
+    val transactions: TableQuery[transactions] = TableQuery[transactions] 
 
-  case class Status(status: Boolean)
+    // HTTP POST /add
+    def addTransaction: Endpoint[IO, Status] = post("add" :: jsonBody[AddTransaction]) { request: AddTransaction =>
+      val transactions = request.toTransaction :: db.getOrElse(0, List.empty)
+      db.put(0, transactions)
 
-  case class AddTransaction(sender: String,
-                            receiver: String,
-                            value: Int,
-                            time: String,
-                            category: Option[String]) {
-    def toTransaction: Transaction = Transaction(sender, receiver, value, time, category)
-  }
 
-  // HTTP POST /add
-  def addTransaction: Endpoint[IO, Status] = post("add" :: jsonBody[AddTransaction]) { request: AddTransaction =>
-    val transactions = request.toTransaction :: db.getOrElse(0, List.empty)
-    db.put(0, transactions)
-    Ok(Status(true))
-  }
+      Ok(Status(true))
+    }
 
-  // HTTP GET /transactions
-  def getTransactions: Endpoint[IO, immutable.Map[Int, List[Transaction]]] = get("transactions") {
-    Ok(db.toMap)
-  }
+    // HTTP GET /transactions
+    def getTransactions: Endpoint[IO, immutable.Map[Int, List[Transaction]]] = get("transactions") {
+      Ok(db.toMap)
+    }
 
-  def service: Service[Request, Response] = Bootstrap
-    .serve[Application.Json](addTransaction)
-    .serve[Application.Json](getTransactions)
-    .toService
 
-  //val db_real: PostgresProfile.backend.Database = Database.forConfig("nmf_postgres")
+    Await.ready(Http.server.serve(":8081", service))
+  
+  } finally db_real.close
 
-  Await.ready(Http.server.serve(":8081", service))
 }
