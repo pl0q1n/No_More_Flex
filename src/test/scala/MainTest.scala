@@ -32,12 +32,28 @@ class MainTest extends FunSuite {
     {
       val request = Input.get("/transactions", "sender" -> "a")
       val response = Main.getTransactions(request).awaitOutputUnsafe()
-      assert(response.map(_.value).size == 1)
+      val transactions = response.map(_.value).head
+      assert(transactions.size == 1)
+      assert(transactions.head.sender == "a")
     }
     {
-     val request = Input.get("/transactions")
-     val response = Main.getTransactions(request).awaitOutputUnsafe()
-     assert(response.map(_.value).head.size == 2)
+      val request = Input.get("/transactions")
+      val response = Main.getTransactions(request).awaitOutputUnsafe()
+      val transactions = response.map(_.value).head
+      assert(transactions.size == 2)
+    } 
+    { 
+      val request = Input.get("/transactions", "receiver" -> "slave")
+      val response = Main.getTransactions(request).awaitOutputUnsafe()
+      val transactions = response.map(_.value).head
+      assert(transactions.size == 1)
+      assert(transactions.head.sender == "master")
+    }
+    { 
+      val request = Input.get("/transactions", "receiver" -> "romoni")
+      val response = Main.getTransactions(request).awaitOutputUnsafe()
+      val transactions = response.map(_.value).head
+      assert(transactions.size == 0)
     }
   }
 }
