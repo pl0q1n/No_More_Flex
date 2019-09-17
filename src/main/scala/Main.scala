@@ -8,12 +8,6 @@ import io.finch._
 import io.finch.catsEffect._
 import io.finch.circe._
 import io.circe.generic.auto._
-import slick.backend.DatabasePublisher
-import slick.driver.H2Driver.api._
-//import slick.jdbc.PostgresProfile.api._
-//import slick.jdbc.PostgresProfile
-//import slick.driver.PostgresProfile.api._
-
 
 object Category extends Enumeration {
   type Category = Value
@@ -30,9 +24,8 @@ case class Transaction(sender: String,
 
 object Main extends App {
   val debugState: mutable.Map[Int, List[Transaction]] = mutable.Map(0 -> List(Transaction("a", "b", 42, 1559481217, None)))
-  var db: mutable.Map[Int, List[Transaction]] = mutable.Map.empty
-  val db_real = Database.forConfig("nmf_postgres")
-
+  var db: mutable.Map[Int, List[Transaction]] = debugState //mutable.Map.empty
+  
   case class Status(status: Boolean)
 
   case class AddTransaction(sender: String,
@@ -57,7 +50,7 @@ object Main extends App {
     Ok(Status(true))
   }
 
-  def getTransactions:  Endpoint[IO, immutable.Map[Int, List[Transaction]]] = 
+  def getTransactions:  Endpoint[IO, List[Transaction]] = 
     get("transactions" :: paramOption[String]("sender") :: 
       paramOption[String]("receiver") ::
       paramOption[Int]("time_range_start") :: // it's probably better to use paramOption[Timestamp] instead 
@@ -69,16 +62,16 @@ object Main extends App {
        time_range_end: Option[Int], 
        category: Option[String]) =>
       
-      val transcations = db.getOrElse(0, List.empty).filter(transaction => 
-        transaction.sender == sender &&
-        transaction.receiver == receiver &&
-        transaction.time >= time_range_start &&
-        transaction.time <= time_range_end && 
-        transaction.category == category)
+      val transactions = db.getOrElse(0, List.empty).filter(transaction => 
+        sender.map(s => s == transaction.sender).getOrElse(true) &&
+        receiver.map(s => s == transaction.receiver).getOrElse(true) &&
+        transaction.time >= time_range_start.getOrElse(Int.MinValue)  &&
+        transaction.time <= time_range_end.getOrElse(Int.MaxValue) && 
+        category.map(s => s == transaction.category).getOrElse(true) )
       Ok(transactions)
     }
 
-  // HTTP GET /transactions
+  // HTTP GET /transactions 
   def getAllTransactions: Endpoint[IO, immutable.Map[Int, List[Transaction]]] = get("transactions") {
     Ok(db.toMap)
   }
