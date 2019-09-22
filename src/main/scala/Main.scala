@@ -83,5 +83,5 @@ object Main extends App {
 
   //val db_real: PostgresProfile.backend.Database = Database.forConfig("nmf_postgres")
 
-  Await.ready(Http.server.serve(":8081", service))
+  Await.ready(Http.server.serve("0.0.0.0:8081", service))
 }

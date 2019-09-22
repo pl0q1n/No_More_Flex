@@ -4,6 +4,9 @@ val scalatestVersion = "3.0.5"
 
 cancelable in Global := true
 
+enablePlugins(JavaAppPackaging)
+enablePlugins(DockerPlugin)
+
 lazy val root = (project in file("."))
   .settings(
     organization := "com.example",
@@ -19,3 +22,5 @@ lazy val root = (project in file("."))
       "org.postgresql" % "postgresql" % "9.3-1100-jdbc41"
     )
   )
+
+mainClass in Compile := Some("Main")
