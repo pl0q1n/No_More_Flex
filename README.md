@@ -28,11 +28,11 @@ Request to add transaction from user to db.
 
 **Params**
 <p>
-sender (string, required) -- indentifier of money account (eg. card name) which send money.  
-receiver (string, required) -- identifier of money account (eg. company name) who get the money.  
-value (int, required) -- value of transaction.
-time (int, required) -- timestamp of transaction (or time of notification).  
-category (string, optional) -- name of category which transaction related to (eg. "grocery"), if not set, we should try to classificate by receiver field.  
+sender (string, required) -- indentifier of money account (eg. card name) which send money.  <br>
+receiver (string, required) -- identifier of money account (eg. company name) who get the money.   <br>
+value (int, required) -- value of transaction. <br>
+time (int, required) -- timestamp of transaction (or time of notification).   <br>
+category (string, optional) -- name of category which transaction related to (eg. "grocery"), if not set, we should try to classificate by receiver field.   <br>
 </p>
 
 ### Get Expenses
@@ -49,9 +49,9 @@ Request to get expenses (array of transactions) from db
 
 **Params**
 <p>
-sender (string, optional) -- indentifier of money account (eg. card name) which send money.  
-receiver (string, optional) -- identifier of money account (eg. company name) who get the money.  
-time_range_start (int, optional) -- start of time range for transaction (all transactions with time >= time_range_start should be presented), if omitted, time_range_start == 1970-01-01 00:00:00 (in timestamp).  
-time_range_end (int, optional) -- end of time range for transaction (all transactions with time <= time_range_start should be presented), if omitted, time_range_end == now.  
-category (string, optional) -- name of category which transaction related to (eg. "grocery"), if not set, we should try to classificate by receiver field. If omitted, return transactions for all catefories.  
+sender (string, optional) -- indentifier of money account (eg. card name) which send money.   <br>
+receiver (string, optional) -- identifier of money account (eg. company name) who get the money.   <br>
+time_range_start (int, optional) -- start of time range for transaction (all transactions with time >= time_range_start should be presented), if omitted, time_range_start == 1970-01-01 00:00:00 (in timestamp).   <br>
+time_range_end (int, optional) -- end of time range for transaction (all transactions with time <= time_range_start should be presented), if omitted, time_range_end == now.   <br>
+category (string, optional) -- name of category which transaction related to (eg. "grocery"), if not set, we should try to classificate by receiver field. If omitted, return transactions for all catefories.   <br>
 </p>
