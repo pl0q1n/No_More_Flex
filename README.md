@@ -8,7 +8,7 @@ Request to add transaction from user to db.
 
 **Github issue** :
 
-**URL** : `/api/add/`
+**URL** : `/add`
 
 **Method** : `POST`
 
@@ -20,7 +20,7 @@ Request to add transaction from user to db.
      "sender": "MasterCard #1",
      "receiver": "BANK OF AMERICA",
      "value": 1337,
-     "time": "2016-06-22 19:10:25",
+     "int": "2016-06-22 19:10:25",
      "category": "Investing" 
     }
 ]
@@ -31,7 +31,7 @@ Request to add transaction from user to db.
 sender (string, required) -- indentifier of money account (eg. card name) which send money.  
 receiver (string, required) -- identifier of money account (eg. company name) who get the money.  
 value (int, required) -- value of transaction.
-time (string, required) -- time of transaction (or time of notification).  
+time (int, required) -- timestamp of transaction (or time of notification).  
 category (string, optional) -- name of category which transaction related to (eg. "grocery"), if not set, we should try to classificate by receiver field.  
 </p>
 
@@ -41,29 +41,17 @@ Request to get expenses (array of transactions) from db
 
 **Github issue** :
 
-**URL** : `/api/get/`
+**URL** : `/transactions`
 
 **Method** : `GET`
 
 **Auth required** : YES
 
-```json
-[
-    {
-     "sender": "MasterCard #1",
-     "receiver": "BANK OF AMERICA",
-     "time_range_start": "2016-06-22 19:10:25",
-     "time_range_end": "2016-07-19 23:11:01",
-     "category": "Investing" 
-    }
-]
-```
-
 **Params**
 <p>
 sender (string, optional) -- indentifier of money account (eg. card name) which send money.  
 receiver (string, optional) -- identifier of money account (eg. company name) who get the money.  
-time_range_start (string, optional) -- start of time range for transaction (all transactions with time >= time_range_start should be presented), if omitted, time_range_start == 1970-01-01 00:00:00.  
-time_range_end (string, optional) -- end of time range for transaction (all transactions with time <= time_range_start should be presented), if omitted, time_range_end == now.  
+time_range_start (int, optional) -- start of time range for transaction (all transactions with time >= time_range_start should be presented), if omitted, time_range_start == 1970-01-01 00:00:00 (in timestamp).  
+time_range_end (int, optional) -- end of time range for transaction (all transactions with time <= time_range_start should be presented), if omitted, time_range_end == now.  
 category (string, optional) -- name of category which transaction related to (eg. "grocery"), if not set, we should try to classificate by receiver field. If omitted, return transactions for all catefories.  
 </p>
