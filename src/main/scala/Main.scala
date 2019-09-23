@@ -1,6 +1,7 @@
 import scala.collection.mutable
 import scala.collection.immutable
 import cats.effect.IO
+import com.twitter.finagle.http.filter.Cors
 import com.twitter.finagle.{Http, Service}
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.{Await, Try}
@@ -80,8 +81,16 @@ object Main extends App {
     .serve[Application.Json](addTransaction)
     .serve[Application.Json](getTransactions)
     .toService
+  
+  val policy: Cors.Policy = Cors.Policy(
+    allowsOrigin = _ => Some("*"),
+    allowsMethods = _ => Some(Seq("GET", "POST")),
+    allowsHeaders = _ => Some(Seq("Accept"))
+  )
+  
+  val corsService: Service[Request, Response] = new Cors.HttpFilter(policy).andThen(service)
 
   //val db_real: PostgresProfile.backend.Database = Database.forConfig("nmf_postgres")
 
-  Await.ready(Http.server.serve("0.0.0.0:8081", service))
+  Await.ready(Http.server.serve("0.0.0.0:8081", corsService))
 }
