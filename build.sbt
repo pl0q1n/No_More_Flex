@@ -23,4 +23,4 @@ lazy val root = (project in file("."))
     )
   )
 
-mainClass in Compile := Some("Main")
+mainClass in Compile := Some("org.nmf.Main")
