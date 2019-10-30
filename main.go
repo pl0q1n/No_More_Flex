@@ -52,6 +52,23 @@ func addHandlerFunc(ctx *fasthttp.RequestCtx, db *dbMap) {
 	ctx.SetStatusCode(fasthttp.StatusOK)
 }
 
+func getCategoriesFunc(ctx *fasthttp.RequestCtx, db *dbMap) {
+	// map will hold number of requests and name of category
+	categories := make(map[string]int)
+
+	for _, trans := range (*db)[0] {
+		categories[trans.Category]++
+	}
+
+	jsonBytes, _ := json.Marshal(categories)
+
+	log.Println("avaliable categories for client: ", string(jsonBytes))
+
+	ctx.SetBody(jsonBytes)
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetContentType("application/json")
+}
+
 func transactionsHandlerFunc(ctx *fasthttp.RequestCtx, db *dbMap) {
 	queryArgs := ctx.URI().QueryArgs()
 
@@ -82,28 +99,24 @@ func transactionsHandlerFunc(ctx *fasthttp.RequestCtx, db *dbMap) {
 
 	for _, trans := range (*db)[0] {
 		if trans.Category != transReq.category && transReq.category != "" {
-			log.Println("category check failed")
 			continue
 		}
 		if trans.Receiver != transReq.receiver && transReq.receiver != "" {
-			log.Println("receiver check failed")
 			continue
 		}
 		if trans.Sender != transReq.sender && transReq.sender != "" {
-			log.Println("sender check failed")
 			continue
 		}
 		if trans.Time < transReq.timeRangeStart || trans.Time >= transReq.timeRangeEnd {
-			log.Println("time check failed")
 			continue
 		}
 		transactions = append(transactions, trans)
 	}
 
-	log.Printf("Send next transactions: ", transactions)
+	log.Println("Send next transactions: ", transactions)
 	jsonBytes, err := json.Marshal(transactions)
 
-	log.Printf("JsonBytes sent: ", jsonBytes)
+	log.Println("Json sent: ", string(jsonBytes))
 	if err != nil {
 		log.Println("can't marshal transactions into json, fix structure: ", err.Error())
 		ctx.SetBody([]byte{})
@@ -119,6 +132,7 @@ func transactionsHandlerFunc(ctx *fasthttp.RequestCtx, db *dbMap) {
 func main() {
 	db := make(dbMap)
 
+	// TODO: provide userid in requests
 	db[0] = append(db[0], transaction{"Bank of America", "VTB", 3, 10000, "Unknown"})
 
 	serve := func(ctx *fasthttp.RequestCtx) {
@@ -127,8 +141,10 @@ func main() {
 			addHandlerFunc(ctx, &db)
 		case "/transactions":
 			transactionsHandlerFunc(ctx, &db)
+		case "/getCategories":
+			getCategoriesFunc(ctx, &db)
 		default:
-			log.Printf("Uknown path %v \n", ctx.Path())
+			log.Printf("Uknown path %v \n", string(ctx.Path()))
 			ctx.Error("not found", fasthttp.StatusNotFound)
 		}
 	}
