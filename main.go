@@ -50,6 +50,9 @@ func addHandlerFunc(ctx *fasthttp.RequestCtx, db *dbMap) {
 
 	ctx.SetBody([]byte{})
 	ctx.SetStatusCode(fasthttp.StatusOK)
+
+	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	ctx.Response.Header.Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 }
 
 func getCategoriesFunc(ctx *fasthttp.RequestCtx, db *dbMap) {
@@ -67,6 +70,7 @@ func getCategoriesFunc(ctx *fasthttp.RequestCtx, db *dbMap) {
 	ctx.SetBody(jsonBytes)
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	ctx.SetContentType("application/json")
+
 }
 
 func transactionsHandlerFunc(ctx *fasthttp.RequestCtx, db *dbMap) {
@@ -117,6 +121,10 @@ func transactionsHandlerFunc(ctx *fasthttp.RequestCtx, db *dbMap) {
 	jsonBytes, err := json.Marshal(transactions)
 
 	log.Println("Json sent: ", string(jsonBytes))
+
+	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	ctx.Response.Header.Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+
 	if err != nil {
 		log.Println("can't marshal transactions into json, fix structure: ", err.Error())
 		ctx.SetBody([]byte{})
