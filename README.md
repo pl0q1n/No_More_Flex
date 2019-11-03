@@ -1,5 +1,7 @@
 # No More Flex
 
+[![Build Status](https://travis-ci.com/pl0q1n/No_More_Flex.svg?branch=master)](https://travis-ci.com/pl0q1n/No_More_Flex)
+
 ## NMF API
 
 ### Add Transaction
