@@ -6,8 +6,4 @@ if [ ! $(which swagger) ]; then
   sudo chmod +x /usr/local/bin/swagger
 fi
 
-if [ ! -d gen ]; then
-  mkdir gen
-fi
-
 swagger generate server -A nmf -f ./swagger.yml
