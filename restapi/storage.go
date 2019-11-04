@@ -2,6 +2,7 @@ package restapi
 
 import (
 	"sync"
+	"log"
 
 	"github.com/pl0q1n/No_More_Flex/models"
 )
@@ -25,9 +26,19 @@ func NewStorage() *Storage {
 	}
 }
 
+func CopyTransaction(transaction models.Transaction) models.Transaction {
+	return models.Transaction{
+		Category: transaction.Category,
+		Receiver: &*transaction.Receiver,
+		Sender: &*transaction.Sender,
+		Time: &*transaction.Time,
+		Value: &*transaction.Value,
+	}
+}
+
 func (storage *Storage) AddTransaction(id UserID, transaction models.Transaction) error {
 	storage.mutex.Lock()
-	storage.mem[id] = append(storage.mem[id], transaction)
+	storage.mem[id] = append(storage.mem[id], CopyTransaction(transaction))
 	storage.mutex.Unlock()
 	return nil
 }
@@ -71,11 +82,14 @@ func (filter *TransactionsFilter) Check(transaction *models.Transaction) bool {
 }
 
 func (storage *Storage) FilterTransactions(id UserID, filter TransactionsFilter) ([]*models.Transaction, error) {
+	log.Printf("Filter: %v\n", filter)
+
 	transactions := make([]*models.Transaction, 0)
 	storage.mutex.Lock()
 	for _, transaction := range storage.mem[id] {
 		if filter.Check(&transaction) {
-			transactions = append(transactions, &transaction)
+			t := CopyTransaction(transaction)
+			transactions = append(transactions, &t)
 		}
 	}
 	storage.mutex.Unlock()
