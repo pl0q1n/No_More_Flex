@@ -69,7 +69,7 @@ func configureAPI(api *operations.NmfAPI) http.Handler {
 
 		transactions, err := storage.FilterTransactions(UserID(0), filter)
 		if err != nil {
-			return operations.NewFilterTransactionsDefault(500)
+			return operations.NewFilterTransactionsDefault(500).WithPayload(&models.Error{Message: swag.String(err.Error())})
 		}
 
 		return operations.NewFilterTransactionsOK().WithPayload(transactions)
