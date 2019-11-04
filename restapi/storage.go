@@ -15,13 +15,13 @@ type UserID int
 
 type Storage struct {
 	mutex *sync.Mutex
-	mem map[UserID][]models.Transaction
+	mem   map[UserID][]models.Transaction
 }
 
 func NewStorage() *Storage {
 	return &Storage{
 		mutex: &sync.Mutex{},
-		mem: make(map[UserID][]models.Transaction),
+		mem:   make(map[UserID][]models.Transaction),
 	}
 }
 
@@ -34,19 +34,19 @@ func (storage *Storage) AddTransaction(id UserID, transaction models.Transaction
 
 type TransactionsFilter struct {
 	Category string
-	From int64
-	To int64
+	From     int64
+	To       int64
 	Receiver string
-	Sender string
+	Sender   string
 }
 
 func NewTransactionsFilter() TransactionsFilter {
 	return TransactionsFilter{
 		Category: "",
-		From: MinInt64,
-		To: MaxInt64,
+		From:     MinInt64,
+		To:       MaxInt64,
 		Receiver: "",
-		Sender: "",
+		Sender:   "",
 	}
 }
 

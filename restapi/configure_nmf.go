@@ -6,11 +6,11 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	cors "github.com/rs/cors"
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
-    swag "github.com/go-openapi/swag"
+	swag "github.com/go-openapi/swag"
+	cors "github.com/rs/cors"
 
 	"github.com/pl0q1n/No_More_Flex/models"
 	"github.com/pl0q1n/No_More_Flex/restapi/operations"
