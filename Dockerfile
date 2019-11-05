@@ -1,19 +1,13 @@
-FROM golang:latest
-
+FROM golang:latest AS builder
 WORKDIR /app
-
 COPY go.mod ./
-
 RUN go mod download
-
 COPY . .
-
 RUN go build ./cmd/nmf-server
 
-# Expose port 8080 to the outside world
+FROM alpine:latest
+COPY --from=builder /app/nmf-server ./
 EXPOSE 8080
 ENV PORT 8080
 ENV HOST 0.0.0.0
-
-# Command to run the executable
 CMD ["./nmf-server"]
