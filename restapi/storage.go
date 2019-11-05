@@ -2,7 +2,6 @@ package restapi
 
 import (
 	"sync"
-	"log"
 
 	"github.com/pl0q1n/No_More_Flex/models"
 )
@@ -82,8 +81,6 @@ func (filter *TransactionsFilter) Check(transaction *models.Transaction) bool {
 }
 
 func (storage *Storage) FilterTransactions(id UserID, filter TransactionsFilter) ([]*models.Transaction, error) {
-	log.Printf("Filter: %v\n", filter)
-
 	transactions := make([]*models.Transaction, 0)
 	storage.mutex.Lock()
 	for _, transaction := range storage.mem[id] {

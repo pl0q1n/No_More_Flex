@@ -2,9 +2,12 @@
 
 [![Build Status](https://travis-ci.com/pl0q1n/No_More_Flex.svg?branch=master)](https://travis-ci.com/pl0q1n/No_More_Flex)
 
+## How to build
+* go build ./cmd/nmf-server
+
 ## How to run
 * docker pull pl0q1n/nmf
-* docker docker run -d -p 8080:8080 nmf
+* docker run -d -p 8080:8080 nmf
 
 ## NMF API
 
