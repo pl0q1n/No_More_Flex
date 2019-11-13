@@ -12,11 +12,12 @@ import (
 	swag "github.com/go-openapi/swag"
 	cors "github.com/rs/cors"
 
+	"github.com/pl0q1n/No_More_Flex/transactions"
 	"github.com/pl0q1n/No_More_Flex/models"
 	"github.com/pl0q1n/No_More_Flex/restapi/operations"
 )
 
-var storage *Storage = NewStorage()
+var transactionsStorage transactions.Storage = transactions.NewMemoryStorage()
 
 //go:generate swagger generate server --target ../../nmf --name Nmf --spec ../swagger.yml
 
@@ -39,14 +40,14 @@ func configureAPI(api *operations.NmfAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	api.AddTransactionHandler = operations.AddTransactionHandlerFunc(func(params operations.AddTransactionParams) middleware.Responder {
-		if err := storage.AddTransaction(UserID(0), *params.Body); err != nil {
+		if err := transactionsStorage.Add(transactions.UserID(0), *params.Body); err != nil {
 			return operations.NewAddTransactionDefault(500).WithPayload(&models.Error{Message: swag.String(err.Error())})
 		}
 		return operations.NewAddTransactionCreated()
 	})
 
 	api.FilterTransactionsHandler = operations.FilterTransactionsHandlerFunc(func(params operations.FilterTransactionsParams) middleware.Responder {
-		filter := NewTransactionsFilter()
+		filter := transactions.NewFilter()
 		if params.Category != nil {
 			filter.Category = *params.Category
 		}
@@ -67,7 +68,7 @@ func configureAPI(api *operations.NmfAPI) http.Handler {
 			filter.Receiver = *params.Receiver
 		}
 
-		transactions, err := storage.FilterTransactions(UserID(0), filter)
+		transactions, err := transactionsStorage.Filter(transactions.UserID(0), filter)
 		if err != nil {
 			return operations.NewFilterTransactionsDefault(500).WithPayload(&models.Error{Message: swag.String(err.Error())})
 		}
