@@ -16,21 +16,22 @@ class AddTransaction extends Component {
         const target = event.target;
         const value = target.value;
         const name = target.name;
-    
+
         this.setState({
-          [name]: value
+          [name]: (name == "time") || (name == "value") ? parseInt(value) : value
         });
       }
     
       sendTransaction() {    
+        console.log(this.state);
         console.log("Sending transaction: " + JSON.stringify(this.state));
+
         axios({
             method: 'post',
             url: 'http://localhost:8080/transactions/add',
             data: this.state
         })
-        
-        
+
       }
     
       render() {
@@ -66,9 +67,9 @@ class AddTransaction extends Component {
             <label>
               Timestamp: &nbsp;
               <input
-                name="timestamp"
+                name="time"
                 type="number"
-                value={this.state.timestamp}
+                value={this.state.time}
                 onChange={this.handleInputChange} />
                 <br />
             </label>
