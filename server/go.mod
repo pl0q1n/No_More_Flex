@@ -12,5 +12,5 @@ require (
 	github.com/go-openapi/validate v0.19.4
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/rs/cors v1.7.0
-	golang.org/x/net v0.0.0-20191101175033-0deb6923b6d9
+	golang.org/x/net v0.7.0
 )
